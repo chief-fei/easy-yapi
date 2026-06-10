@@ -1,52 +1,65 @@
-package com.itangcent.easyapi.exporter.channel.markdown
+package com.itangcent.easyapi.exporter.channel.hoppscotch
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
 import com.itangcent.easyapi.core.threading.background
 import com.itangcent.easyapi.core.threading.swing
 import com.itangcent.easyapi.exporter.channel.ApiChannel
 import com.itangcent.easyapi.exporter.channel.ChannelConfig
 import com.itangcent.easyapi.exporter.channel.ChannelOptionsPanel
 import com.itangcent.easyapi.exporter.channel.FileExportSupport
-import com.itangcent.easyapi.exporter.markdown.DefaultMarkdownFormatter
-import com.itangcent.easyapi.exporter.markdown.MarkdownFormatter
-import com.itangcent.easyapi.exporter.markdown.MarkdownExportMetadata
+import com.itangcent.easyapi.exporter.hoppscotch.HoppscotchExportMetadata
+import com.itangcent.easyapi.exporter.hoppscotch.HoppscotchFormatter
 import com.itangcent.easyapi.exporter.model.ExportContext
 import com.itangcent.easyapi.exporter.model.ExportResult
+import com.itangcent.easyapi.exporter.model.isHttp
 import com.itangcent.easyapi.logging.IdeaLog
+import com.itangcent.easyapi.settings.PostmanJson5FormatType
+import com.itangcent.easyapi.settings.SettingBinder
+import com.itangcent.easyapi.exporter.postman.PostmanFormatOptions
 import kotlinx.coroutines.CancellationException
 import java.awt.BorderLayout
-import java.awt.CardLayout
-import javax.swing.*
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JPanel
 
-/**
- * [ApiChannel] that exports API endpoints as Markdown documentation.
- *
- * Supports both HTTP and gRPC endpoints. Exposes a top-level IDE action
- * for quick access.
- *
- * @see ApiChannel
- * @see DefaultMarkdownFormatter
- */
-class MarkdownChannel : ApiChannel, IdeaLog {
+class HoppscotchChannel : ApiChannel, IdeaLog {
 
-    override val id: String = "markdown"
-    override val displayName: String = "Markdown"
-    override val supportsGrpc: Boolean = true
+    override val id: String = "hoppscotch"
+    override val displayName: String = "Hoppscotch"
     override val exposeAsAction: Boolean = true
-    override val actionText: String = "导出到 Markdown"
-
-    private val formatter: MarkdownFormatter = DefaultMarkdownFormatter()
+    override val actionText: String = "导出到 Hoppscotch"
 
     override fun createOptionsPanel(project: Project): ChannelOptionsPanel {
-        return MarkdownOptionsPanel(project)
+        return HoppscotchOptionsPanel(project)
     }
 
     override suspend fun export(context: ExportContext): ExportResult {
-        val content = formatter.format(context.endpointsToExport, "API Documentation")
+        val httpEndpoints = context.endpointsToExport.filter { it.isHttp }
+        if (httpEndpoints.isEmpty()) {
+            return ExportResult.Error("Hoppscotch 仅支持导出 HTTP 接口")
+        }
+
+        val settings = SettingBinder.getInstance(context.project).read()
+        val formatter = HoppscotchFormatter(
+            project = context.project,
+            options = PostmanFormatOptions(
+                buildExample = settings.postmanBuildExample,
+                autoMergeScript = settings.autoMergeScript,
+                wrapCollection = settings.wrapCollection,
+                json5FormatType = runCatching {
+                    PostmanJson5FormatType.valueOf(settings.postmanJson5FormatType)
+                }.getOrDefault(PostmanJson5FormatType.EXAMPLE_ONLY),
+                appendTimestamp = false
+            )
+        )
+        val content = formatter.format(httpEndpoints, context.project.name)
         return ExportResult.Success(
-            count = context.endpointsToExport.size,
-            target = "Markdown",
-            metadata = MarkdownExportMetadata(content = content)
+            count = httpEndpoints.size,
+            target = "Hoppscotch",
+            metadata = HoppscotchExportMetadata(content)
         )
     }
 
@@ -55,24 +68,23 @@ class MarkdownChannel : ApiChannel, IdeaLog {
         result: ExportResult.Success,
         config: ChannelConfig
     ): Boolean {
-        val metadata = result.metadata as? MarkdownExportMetadata ?: return false
+        val metadata = result.metadata as? HoppscotchExportMetadata ?: return false
         val targetFile = FileExportSupport.resolveTargetFile(
             project = project,
             fileConfig = config as? ChannelConfig.FileConfig,
-            defaultFileName = "api_documentation.md",
-            extension = "md",
-            dialogTitle = "保存 Markdown 文档",
-            dialogDescription = "选择 Markdown 文档的保存位置"
-        )
-            ?: throw CancellationException("User cancelled file selection")
+            defaultFileName = "hoppscotch_collection.json",
+            extension = "json",
+            dialogTitle = "保存 Hoppscotch 集合",
+            dialogDescription = "选择 Hoppscotch 导出文件的保存位置"
+        ) ?: throw CancellationException("User cancelled file selection")
 
         background {
             targetFile.writeText(metadata.content)
         }
-        LOG.info("Markdown exported to ${targetFile.absolutePath}")
+        LOG.info("Hoppscotch collection exported to ${targetFile.absolutePath}")
 
         swing {
-            com.intellij.openapi.ui.Messages.showInfoMessage(
+            Messages.showInfoMessage(
                 project,
                 "已成功导出 ${result.count} 个接口到 ${targetFile.absolutePath}",
                 "导出 API"
@@ -82,20 +94,20 @@ class MarkdownChannel : ApiChannel, IdeaLog {
     }
 }
 
-private class MarkdownOptionsPanel(private val project: Project) : ChannelOptionsPanel {
+private class HoppscotchOptionsPanel(private val project: Project) : ChannelOptionsPanel {
 
     private val outputDirField = com.intellij.openapi.ui.TextFieldWithBrowseButton().apply {
         text = project.basePath ?: ""
         addBrowseFolderListener(
             project,
             com.intellij.openapi.fileChooser.FileChooserDescriptorFactory.createSingleFolderDescriptor()
-                .withTitle("Select Output Directory")
-                .withDescription("选择 API 导出文件的输出目录")
+                .withTitle("选择输出目录")
+                .withDescription("选择 Hoppscotch 导出文件的输出目录")
         )
     }
 
     private val fileNameField = com.intellij.ui.components.JBTextField().apply {
-        text = "api_export"
+        text = "hoppscotch_export"
         columns = 30
     }
 

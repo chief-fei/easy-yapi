@@ -43,8 +43,8 @@ class ExportDialog(
 
     private val endpointTableModel = EndpointTableModel(endpoints)
     private val endpointTable = JBTable(endpointTableModel)
-    private val selectAllBtn = JButton("Select All")
-    private val deselectAllBtn = JButton("Deselect All")
+    private val selectAllBtn = JButton("全选")
+    private val deselectAllBtn = JButton("全不选")
 
     var selectedChannel: ApiChannel? = null
         private set
@@ -52,13 +52,13 @@ class ExportDialog(
     var channelConfig: ChannelConfig = ChannelConfig.Empty
         private set
 
-    private val noChannelsLabel = JLabel("No export channels available").apply {
+    private val noChannelsLabel = JLabel("当前没有可用的导出渠道").apply {
         foreground = Color.RED
         alignmentX = Component.CENTER_ALIGNMENT
     }
 
     init {
-        title = "Export API Endpoints ($endpointCount endpoints)"
+        title = "导出 API 接口（共 $endpointCount 个）"
 
         for (channel in availableChannels) {
             val panel = channel.createOptionsPanel(project)
@@ -164,7 +164,7 @@ class ExportDialog(
             if (availableChannels.isEmpty()) {
                 add(noChannelsLabel, BorderLayout.CENTER)
             } else {
-                add(JLabel("Export Channel:"), BorderLayout.WEST)
+                add(JLabel("导出渠道："), BorderLayout.WEST)
                 add(channelComboBox, BorderLayout.CENTER)
             }
         }
@@ -172,7 +172,7 @@ class ExportDialog(
 
     private fun createEndpointPanel(): JPanel {
         val headerPanel = JPanel(BorderLayout()).apply {
-            add(JLabel("API Endpoints:"), BorderLayout.WEST)
+            add(JLabel("API 接口："), BorderLayout.WEST)
             add(JPanel().apply {
                 layout = BoxLayout(this, BoxLayout.X_AXIS)
                 add(selectAllBtn)
@@ -289,9 +289,9 @@ private class EndpointTableModel(
 
     override fun getColumnName(column: Int): String = when (column) {
         COL_SELECT -> ""
-        COL_METHOD -> "Method"
-        COL_PATH -> "Path"
-        COL_NAME -> "Name"
+        COL_METHOD -> "请求方式"
+        COL_PATH -> "路径"
+        COL_NAME -> "名称"
         else -> ""
     }
 

@@ -33,6 +33,7 @@
         <classExporter implementation="com.itangcent.easyapi.exporter.grpc.GrpcClassExporter"/>
         <apiChannel implementation="com.itangcent.easyapi.exporter.channel.markdown.MarkdownChannel"/>
         <apiChannel implementation="com.itangcent.easyapi.exporter.channel.postman.PostmanChannel"/>
+        <apiChannel implementation="com.itangcent.easyapi.exporter.channel.hoppscotch.HoppscotchChannel"/>
         <apiChannel implementation="com.itangcent.easyapi.exporter.channel.yapi.YapiChannel"/>
         <apiChannel implementation="com.itangcent.easyapi.exporter.channel.curl.CurlChannel"/>
         <apiChannel implementation="com.itangcent.easyapi.exporter.channel.httpclient.HttpClientChannel"/>

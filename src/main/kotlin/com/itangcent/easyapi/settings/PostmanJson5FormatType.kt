@@ -14,11 +14,11 @@ package com.itangcent.easyapi.settings
  * - ALL - Always use JSON5
  */
 enum class PostmanJson5FormatType(val desc: String, private val types: Int) {
-    NONE("not use json5 anywhere", 0),
-    REQUEST_ONLY("for request only", 1 or 4),
-    RESPONSE_ONLY("for response only", 8),
-    EXAMPLE_ONLY("for example only", 4 or 8),
-    ALL("always use json5", 1 or 4 or 8);
+    NONE("不使用 JSON5", 0),
+    REQUEST_ONLY("仅请求体使用 JSON5", 1 or 4),
+    RESPONSE_ONLY("仅响应体使用 JSON5", 8),
+    EXAMPLE_ONLY("仅示例使用 JSON5", 4 or 8),
+    ALL("全部使用 JSON5", 1 or 4 or 8);
 
     /**
      * Checks if JSON5 should be used for the given type.
@@ -29,4 +29,6 @@ enum class PostmanJson5FormatType(val desc: String, private val types: Int) {
     fun needUseJson5(type: Int): Boolean {
         return (this.types and type) != 0
     }
+
+    override fun toString(): String = desc
 }

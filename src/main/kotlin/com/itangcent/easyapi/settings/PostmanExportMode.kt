@@ -9,7 +9,9 @@ package com.itangcent.easyapi.settings
  */
 enum class PostmanExportMode(val desc: String) {
     /** Always create a new collection */
-    CREATE_NEW("always create new collection"),
+    CREATE_NEW("始终创建新集合"),
     /** Update existing collections by module */
-    UPDATE_EXISTING("try update existed collection")
+    UPDATE_EXISTING("优先更新已有集合");
+
+    override fun toString(): String = desc
 }

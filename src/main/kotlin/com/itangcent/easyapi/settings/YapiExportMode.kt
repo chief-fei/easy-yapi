@@ -9,11 +9,13 @@ package com.itangcent.easyapi.settings
  */
 enum class YapiExportMode(val desc: String) {
     /** Always update existing APIs */
-    ALWAYS_UPDATE("always update existed api"),
+    ALWAYS_UPDATE("始终更新已有接口"),
     /** Never update existing APIs */
-    NEVER_UPDATE("never update existed api"),
+    NEVER_UPDATE("始终保留已有接口"),
     /** Ask user for each conflict */
-    ALWAYS_ASK("always popup a window to ask whether to override the api"),
+    ALWAYS_ASK("每次冲突都弹窗确认"),
     /** Update only when content has changed */
-    UPDATE_IF_CHANGED("update only if the API content has changed")
+    UPDATE_IF_CHANGED("仅内容变化时更新");
+
+    override fun toString(): String = desc
 }

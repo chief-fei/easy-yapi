@@ -9,7 +9,9 @@ package com.itangcent.easyapi.settings
  */
 enum class MarkdownFormatType(val desc: String) {
     /** Simple format with name, type, and description columns */
-    SIMPLE("simple columns, include name、type、desc"),
+    SIMPLE("基础列（名称、类型、描述）"),
     /** Ultimate format with additional required, default columns */
-    ULTIMATE("more columns than simple, include name、type、required、default、desc")
+    ULTIMATE("完整列（名称、类型、必填、默认值、描述）");
+
+    override fun toString(): String = desc
 }

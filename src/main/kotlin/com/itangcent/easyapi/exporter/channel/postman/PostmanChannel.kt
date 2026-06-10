@@ -1,19 +1,16 @@
 package com.itangcent.easyapi.exporter.channel.postman
 
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.fileChooser.FileChooserFactory
-import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileWrapper
 import com.itangcent.easyapi.core.threading.IdeDispatchers
 import com.itangcent.easyapi.core.threading.backgroundAsync
 import com.itangcent.easyapi.core.threading.swing
 import com.itangcent.easyapi.exporter.channel.ApiChannel
 import com.itangcent.easyapi.exporter.channel.ChannelConfig
 import com.itangcent.easyapi.exporter.channel.ChannelOptionsPanel
+import com.itangcent.easyapi.exporter.channel.FileExportSupport
 import com.itangcent.easyapi.exporter.model.ExportContext
 import com.itangcent.easyapi.exporter.model.ExportResult
 import com.itangcent.easyapi.exporter.postman.*
@@ -29,7 +26,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import java.awt.BorderLayout
 import java.awt.event.ItemEvent
-import java.io.File
 import javax.swing.*
 
 /**
@@ -48,7 +44,7 @@ class PostmanChannel : ApiChannel, IdeaLog {
     override val displayName: String = "Postman"
     override val supportsGrpc: Boolean = false
     override val exposeAsAction: Boolean = true
-    override val actionText: String = "Export to Postman"
+    override val actionText: String = "导出到 Postman"
 
     override fun createOptionsPanel(project: Project): ChannelOptionsPanel {
         return PostmanOptionsPanel(project)
@@ -342,7 +338,7 @@ class PostmanChannel : ApiChannel, IdeaLog {
             }
         }
         swing {
-            Messages.showInfoMessage(project, message, "Export API")
+            Messages.showInfoMessage(project, message, "导出 API")
         }
         return true
     }
@@ -353,8 +349,14 @@ class PostmanChannel : ApiChannel, IdeaLog {
         metadata: PostmanExportMetadata,
         config: ChannelConfig
     ): Boolean {
-        val fileConfig = config as? ChannelConfig.FileConfig
-        val targetFile = resolveTargetFile(project, fileConfig, "postman_collection.json")
+        val targetFile = FileExportSupport.resolveTargetFile(
+            project = project,
+            fileConfig = config as? ChannelConfig.FileConfig,
+            defaultFileName = "postman_collection.json",
+            extension = "json",
+            dialogTitle = "保存 Postman 集合",
+            dialogDescription = "选择 Postman 集合文件的保存位置"
+        )
             ?: throw CancellationException("User cancelled file selection")
 
         val gson = postmanGson()
@@ -367,41 +369,11 @@ class PostmanChannel : ApiChannel, IdeaLog {
         swing {
             Messages.showInfoMessage(
                 project,
-                "Successfully exported ${result.count} endpoints to ${targetFile.absolutePath}",
-                "Export API"
+                "已成功导出 ${result.count} 个接口到 ${targetFile.absolutePath}",
+                "导出 API"
             )
         }
         return true
-    }
-
-    private suspend fun resolveTargetFile(
-        project: Project,
-        fileConfig: ChannelConfig.FileConfig?,
-        defaultFileName: String
-    ): File? {
-        val outputDir = fileConfig?.outputDir
-        val fileName = fileConfig?.fileName
-        if (!outputDir.isNullOrBlank()) {
-            val dir = File(outputDir)
-            if (!dir.exists()) {
-                dir.mkdirs()
-            }
-            val name = if (!fileName.isNullOrBlank()) "$fileName.json" else defaultFileName
-            return File(dir, name)
-        }
-        return selectTargetFile(project, defaultFileName)
-    }
-
-    private suspend fun selectTargetFile(project: Project, defaultFileName: String): File? {
-        return swing {
-            val descriptor = FileSaverDescriptor(
-                "Save Postman Collection",
-                "Choose where to save the Postman collection file"
-            )
-            val saver = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, project)
-            val wrapper: VirtualFileWrapper? = saver.save(null as VirtualFile?, defaultFileName)
-            wrapper?.file
-        }
     }
 
     private fun countApiItems(collection: PostmanCollection): Int {
@@ -444,13 +416,13 @@ class PostmanOptionsPanel(private val project: Project) : ChannelOptionsPanel, I
     override val component: JComponent = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
         add(JPanel(BorderLayout(8, 0)).apply {
-            add(JLabel("Workspace:"), BorderLayout.WEST)
+        add(JLabel("工作区："), BorderLayout.WEST)
             add(postmanWorkspaceComboBox, BorderLayout.CENTER)
             add(postmanRefreshButton, BorderLayout.EAST)
         })
         add(Box.createVerticalStrut(5))
         add(JPanel(BorderLayout(8, 0)).apply {
-            add(JLabel("Collection:"), BorderLayout.WEST)
+        add(JLabel("集合："), BorderLayout.WEST)
             add(postmanCollectionComboBox, BorderLayout.CENTER)
         })
         add(Box.createVerticalStrut(5))

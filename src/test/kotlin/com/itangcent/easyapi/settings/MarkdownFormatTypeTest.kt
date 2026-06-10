@@ -15,8 +15,8 @@ class MarkdownFormatTypeTest {
 
     @Test
     fun testDesc() {
-        assertEquals("simple columns, include name、type、desc", MarkdownFormatType.SIMPLE.desc)
-        assertEquals("more columns than simple, include name、type、required、default、desc", MarkdownFormatType.ULTIMATE.desc)
+        assertEquals("基础列（名称、类型、描述）", MarkdownFormatType.SIMPLE.desc)
+        assertEquals("完整列（名称、类型、必填、默认值、描述）", MarkdownFormatType.ULTIMATE.desc)
     }
 
     @Test
@@ -29,6 +29,12 @@ class MarkdownFormatTypeTest {
     fun testValueOf() {
         assertEquals(MarkdownFormatType.SIMPLE, MarkdownFormatType.valueOf("SIMPLE"))
         assertEquals(MarkdownFormatType.ULTIMATE, MarkdownFormatType.valueOf("ULTIMATE"))
+    }
+
+    @Test
+    fun testToStringUsesChineseDescription() {
+        assertEquals("基础列（名称、类型、描述）", MarkdownFormatType.SIMPLE.toString())
+        assertEquals("完整列（名称、类型、必填、默认值、描述）", MarkdownFormatType.ULTIMATE.toString())
     }
 
     @Test(expected = IllegalArgumentException::class)

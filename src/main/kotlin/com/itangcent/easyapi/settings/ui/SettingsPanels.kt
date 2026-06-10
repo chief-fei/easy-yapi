@@ -451,7 +451,7 @@ class GeneralSettingsPanel(private val project: com.intellij.openapi.project.Pro
                 (logLevelCombo.selectedItem as? CommonSettingsHelper.VerbosityLevel)?.level != s.logLevel ||
                 outputCharsetCombo.selectedItem?.toString() != s.outputCharset ||
                 outputDemoCheckBox.isSelected != s.outputDemo ||
-                markdownFormatTypeCombo.selectedItem?.toString() != s.markdownFormatType ||
+                (markdownFormatTypeCombo.selectedItem as? MarkdownFormatType)?.name != s.markdownFormatType ||
                 !currentRepos.contentEquals(s.grpcRepositories)
     }
 
@@ -665,11 +665,11 @@ class PostmanSettingsPanel : SettingsPanel {
         return String(postmanToken.password) != (s.postmanToken ?: "") ||
                 (extractWorkspaceId((postmanWorkspace.selectedItem as? String).orEmpty()) ?: "") != (s.postmanWorkspace
             ?: "") ||
-                postmanExportModeCombo.selectedItem?.toString() != s.postmanExportMode ||
+                (postmanExportModeCombo.selectedItem as? PostmanExportMode)?.name != s.postmanExportMode ||
                 postmanBuildExample.isSelected != s.postmanBuildExample ||
                 wrapCollection.isSelected != s.wrapCollection ||
                 autoMergeScript.isSelected != s.autoMergeScript ||
-                postmanJson5FormatTypeCombo.selectedItem?.toString() != s.postmanJson5FormatType ||
+                (postmanJson5FormatTypeCombo.selectedItem as? PostmanJson5FormatType)?.name != s.postmanJson5FormatType ||
                 postmanCollectionsField.text != (s.postmanCollections ?: "")
     }
 
@@ -725,7 +725,7 @@ class YapiSettingsPanel : SettingsPanel {
                 yapiTokens.text != (s.yapiTokens ?: "") ||
                 enableUrlTemplating.isSelected != s.enableUrlTemplating ||
                 switchNotice.isSelected != s.switchNotice ||
-                yapiExportModeCombo.selectedItem?.toString() != s.yapiExportMode ||
+                (yapiExportModeCombo.selectedItem as? YapiExportMode)?.name != s.yapiExportMode ||
                 yapiReqBodyJson5.isSelected != s.yapiReqBodyJson5 ||
                 yapiResBodyJson5.isSelected != s.yapiResBodyJson5
     }

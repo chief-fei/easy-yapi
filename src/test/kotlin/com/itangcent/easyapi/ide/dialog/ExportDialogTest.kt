@@ -9,7 +9,7 @@ class ExportDialogTest : EasyApiLightCodeInsightFixtureTestCase() {
     fun testDialogShowsEndpointCount() {
         val dialog = ExportDialog(project, 10)
         assertEquals("Dialog title should show endpoint count",
-            "Export API Endpoints (10 endpoints)", dialog.title)
+            "导出 API 接口（共 10 个）", dialog.title)
     }
 
     fun testDialogShowsAvailableChannels() {

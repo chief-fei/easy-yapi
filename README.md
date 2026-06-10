@@ -10,7 +10,7 @@ English | [中文](README_CN.md)
 > **Note:** This is the v3.0 rewrite of EasyYapi. For the source code of stable v2.x releases, see the
 > [`stable/v2.x.x`](https://github.com/tangcent/easy-yapi/tree/stable/v2.x.x) branch.
 
-An IntelliJ IDEA plugin for API development — export API documentation to YApi/Postman/Markdown, send requests, and manage endpoints directly from your code.
+An IntelliJ IDEA plugin for API development — export API documentation to YApi/Postman/Hoppscotch/Markdown, send requests, and manage endpoints directly from your code.
 
 ## Features
 
@@ -22,6 +22,7 @@ Export API endpoints from your source code to multiple formats:
 |--------|------|------|--------|
 | [YApi](https://easyyapi.github.io/guide/export2yapi) | ✓ | — | Upload to YApi platform with category management, mock rules, and update confirmation |
 | [Postman](https://easyyapi.github.io/guide/export2postman) | ✓ | — | JSON file or direct upload to Postman workspace |
+| Hoppscotch | ✓ | — | JSON file that can be imported directly into Hoppscotch |
 | [Markdown](https://easyyapi.github.io/guide/export2markdown) | ✓ | ✓ | .md documentation file |
 | cURL | ✓ | ✓ | Executable shell command |
 | HTTP Client | ✓ | ✓ | IntelliJ HTTP Client scratch file |
@@ -121,7 +122,7 @@ Support for gRPC service implementations:
 
 1. Right-click on a controller file, class, or method in the editor or project view
 2. Select **EasyApi → Export** (or press `Ctrl+E` on macOS / `Alt+Shift+E`)
-3. Choose the target format (YApi / Postman / Markdown / cURL / HTTP Client)
+3. Choose the target format (YApi / Postman / Hoppscotch / Markdown / cURL / HTTP Client)
 4. The APIs will be exported automatically
 
 ### Call an API
@@ -209,7 +210,7 @@ graph TB
 ```
 
 - **ClassExporter** — Extracts `ApiEndpoint` models from PSI classes (Spring MVC, JAX-RS, Feign, gRPC)
-- **ApiExporter** — Converts `ApiEndpoint` models to output formats (YApi, Postman, Markdown, cURL, HTTP Client)
+- **ApiExporter** — Converts `ApiEndpoint` models to output formats (YApi, Postman, Hoppscotch, Markdown, cURL, HTTP Client)
 - **ExportOrchestrator** — Coordinates the full export pipeline from scanning to output
 - **ApiIndex** — Caches discovered endpoints for fast search and dashboard access
 - **RuleEngine** — Evaluates rule expressions to customize parsing behavior
